@@ -1,6 +1,9 @@
 from functions.initTables import initTrackingTable, initGasTable
 from functions.getMiningEarnings import getMiningEarnings
+from functions.provider import get_provider
 import time
+
+w3 = get_provider("dfk")
 
 def handler(event, context):
     quest_per_day = 1.84615
@@ -9,7 +12,10 @@ def handler(event, context):
     gas_list = gas_table.scan()["Items"]
     total_gas_cost = 0
     for gas_entry in gas_list:
-        total_gas_cost += float(gas_entry["gas_cost"])
+        hash =  gas_entry["tx_hash"]
+        tx = w3.eth.getTransaction(hash)
+        gas_cost = tx["gas"]*tx["gasPrice"]
+        total_gas_cost += float(gas_cost)
         gas_table.delete_item(Key={"time_": gas_entry["time_"]})
     if len(gas_list) == 0:
         avg_gas_cost = 0
@@ -17,13 +23,10 @@ def handler(event, context):
         avg_gas_cost = total_gas_cost/len(gas_list)
 
     mining_earnings = getMiningEarnings(quest_per_day)
-    tracking_table.put_item(Item={
-            "time_": str(int(time.time())),
-            "daily_avg_earnings": str(int(mining_earnings)/10**18),
-            "daily_avg_gas_cost": str(avg_gas_cost*quest_per_day),
-        })
-    return {
+    item = {
         "time_": str(int(time.time())),
         "daily_avg_earnings": str(int(mining_earnings)/10**18),
-        "daily_avg_gas_cost": str(avg_gas_cost*quest_per_day),
+        "daily_avg_gas_cost": str(avg_gas_cost*2*quest_per_day*3/10**18),
     }
+    tracking_table.put_item(Item=item)
+    return item

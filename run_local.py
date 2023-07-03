@@ -1,2 +1,2 @@
 from lambda_function import handler
-handler(None, None)
+print(handler(None, None))
