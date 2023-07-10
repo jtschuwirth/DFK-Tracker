@@ -1,4 +1,5 @@
-from functions.initTables import initTrackingTable, initGasTable
+from functions.getRealEarnings import getRealEarnings
+from functions.initTables import initTrackingTable, initGasTable, init_settings_table
 from functions.getMiningEarnings import getMiningEarnings
 from functions.provider import get_provider
 import time
@@ -9,6 +10,7 @@ def handler(event, context):
     quest_per_day = 1.84615
     tracking_table = initTrackingTable()
     gas_table = initGasTable()
+    settings_table = init_settings_table()
     gas_list = gas_table.scan()["Items"]
     total_gas_cost = 0
     for gas_entry in gas_list:
@@ -22,11 +24,32 @@ def handler(event, context):
     else:
         avg_gas_cost = total_gas_cost/len(gas_list)
 
-    mining_earnings = getMiningEarnings(quest_per_day)
+    mining_earnings = int(getMiningEarnings(quest_per_day))/10**18
+    real_earnings = getRealEarnings()
+    daily_gas_cost = int(avg_gas_cost)*2*quest_per_day*3/10**18
+    expected_avg_profit = mining_earnings - daily_gas_cost
     item = {
         "time_": str(int(time.time())),
-        "daily_avg_earnings": str(int(mining_earnings)/10**18),
-        "daily_avg_gas_cost": str(avg_gas_cost*2*quest_per_day*3/10**18),
+        "daily_avg_earnings": str(mining_earnings),
+        "daily_real_avg_profit": str(real_earnings),
+        "daily_expected_avg_profit": str(expected_avg_profit),
+        "daily_avg_gas_cost": str(daily_gas_cost),
     }
     tracking_table.put_item(Item=item)
+    if expected_avg_profit < 0 or real_earnings < 0.1:
+        settings_table.update_item(
+            Key={"key_":"mining"},
+            UpdateExpression="set enabled=:enabled",
+            ExpressionAttributeValues={
+                ":enabled": False
+            }
+        )
+        settings_table.update_item(
+            Key={"key_":"buyer_settings"},
+            UpdateExpression="set enabled=:enabled",
+            ExpressionAttributeValues={
+                ":enabled": False
+            }
+        )
+        
     return item
