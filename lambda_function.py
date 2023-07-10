@@ -36,7 +36,7 @@ def handler(event, context):
         "daily_avg_gas_cost": str(daily_gas_cost),
     }
     tracking_table.put_item(Item=item)
-    if expected_avg_profit < 0 or real_earnings < 0.1:
+    if expected_avg_profit < 0 or real_earnings < 0:
         settings_table.update_item(
             Key={"key_":"mining"},
             UpdateExpression="set enabled=:enabled",
