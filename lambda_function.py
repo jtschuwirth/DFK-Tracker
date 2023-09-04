@@ -15,10 +15,13 @@ def handler(event, context):
     total_gas_cost = 0
     for gas_entry in gas_list:
         hash =  gas_entry["tx_hash"]
-        tx = w3.eth.getTransaction(hash)
-        gas_cost = tx["gas"]*tx["gasPrice"]
-        total_gas_cost += float(gas_cost)
-        gas_table.delete_item(Key={"time_": gas_entry["time_"]})
+        try:
+            tx = w3.eth.getTransaction(hash)
+            gas_cost = tx["gas"]*tx["gasPrice"]
+            total_gas_cost += float(gas_cost)
+            gas_table.delete_item(Key={"time_": gas_entry["time_"]})
+        except:
+            continue
     if len(gas_list) == 0:
         avg_gas_cost = 0
     else:
