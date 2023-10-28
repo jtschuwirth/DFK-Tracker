@@ -15,22 +15,31 @@ def handler(event, context):
     accounts_table = init_account_table()
     gas_list = gas_table.scan()["Items"]
     total_gas_cost = 0
+    total_gas_price = 0
     c = 0
     for gas_entry in gas_list:
-        hash =  gas_entry["tx_hash"]
+        hash = gas_entry["tx_hash"]
         try:
             if c < 50:   
                 tx = w3.eth.getTransaction(hash)
-                gas_cost = tx["gas"]*tx["gasPrice"]
+                gas_price = tx["gasPrice"]
+                gas_cost = tx["gas"]*gas_price
                 total_gas_cost += float(gas_cost)
+                total_gas_price += float(gas_price)
                 c+=1
-            gas_table.delete_item(Key={"time_": gas_entry["time_"]})
-        except:
-            continue
+        except Exception as e:
+            print(e)
+        #gas_table.delete_item(Key={"time_": gas_entry["time_"]})
+
     if len(gas_list) == 0:
         avg_gas_cost = 0
-    else:
+        avg_gas_price = 0
+    elif 0<c:
         avg_gas_cost = total_gas_cost/c
+        avg_gas_price = (total_gas_price/c)/10**9
+    else:
+        avg_gas_cost = 0
+        avg_gas_price = 0
         
     uptime = getQuestingUptime(accounts_table)
 
@@ -44,6 +53,7 @@ def handler(event, context):
         "daily_real_avg_profit": str(real_earnings),
         "daily_expected_avg_profit": str(expected_avg_profit),
         "daily_avg_gas_cost": str(daily_gas_cost),
+        "avg_gas_price": str(avg_gas_price),
         "uptime": str(uptime),
     }
     tracking_table.put_item(Item=item)
