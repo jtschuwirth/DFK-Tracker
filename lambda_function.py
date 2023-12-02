@@ -29,7 +29,7 @@ def handler(event, context):
                 c+=1
         except Exception as e:
             print(e)
-        #gas_table.delete_item(Key={"time_": gas_entry["time_"]})
+        gas_table.delete_item(Key={"time_": gas_entry["time_"]})
 
     if len(gas_list) == 0:
         avg_gas_cost = 0
