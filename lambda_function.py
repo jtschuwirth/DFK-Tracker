@@ -6,12 +6,15 @@ from functions.getQuestingUptime import getQuestingUptime
 from functions.classes.RPCProvider import RPCProvider, get_rpc_provider
 from functions.classes.TablesManager import TablesManager
 from functions.classes.Config import isProd
+import logging
 import time
 
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 def handler(event, context):
     chain = "dfk"
-    rpcProvider: RPCProvider = get_rpc_provider(chain)
+    rpcProvider: RPCProvider = get_rpc_provider(chain, [], logger)
     apiService = APIService(chain)
     tablesManager = TablesManager(isProd)
 
