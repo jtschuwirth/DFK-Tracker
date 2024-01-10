@@ -54,8 +54,8 @@ def handler(event, context):
     mining_earnings = int(getMiningEarnings(quest_per_day, apiService, rpcProvider))/10**18
     gardening_earnings = int(getGardeningEarnings(quest_per_day, apiService, rpcProvider))/10**18
 
-    mining_real_earnings = getRealEarnings(tablesManager, "mining")
-    gardening_real_earnings = getRealEarnings(tablesManager, "gardening")
+    mining_real_earnings = getRealEarnings(tablesManager, "mining", logger)
+    gardening_real_earnings = getRealEarnings(tablesManager, "gardening", logger)
 
     daily_mining_gas_cost = int(avg_gas_cost_results[0])*2*quest_per_day*3/10**18
     daily_gardening_gas_cost = int(avg_gas_cost_results[1])*2*quest_per_day*3/10**18
