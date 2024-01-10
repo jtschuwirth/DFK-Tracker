@@ -1,5 +1,4 @@
 from functions.classes.TablesManager import TablesManager
-from functions.getPrices import getItemPriceJewel
 
 def getRealEarnings(tablesManager: TablesManager, profession):
     payouts_list = tablesManager.payouts.scan()["Items"]
@@ -7,7 +6,7 @@ def getRealEarnings(tablesManager: TablesManager, profession):
     total_time_delta = 0
     no_stats = 0
     for payout in payouts_list:
-        if tablesManager.accounts.get_item(Key={"address_": payout["address_"]})["Item"]["profession"] != profession or (profession=="mining" and "profession" not in tablesManager.accounts.get_item(Key={"address_": payout["address_"]})["Item"]):
+        if  (profession=="mining" and "profession" not in tablesManager.accounts.get_item(Key={"address_": payout["address_"]})["Item"]) or tablesManager.accounts.get_item(Key={"address_": payout["address_"]})["Item"]["profession"] != profession:
             continue
         if int(payout["time_delta"]) == 0:
             no_stats += 1

@@ -30,7 +30,7 @@ def handler(event, context):
         for gas_entry in gas_list:
             hash = gas_entry["tx_hash"]
             try:
-                tx = rpcProvider.w3.eth.getTransaction(hash)
+                tx = rpcProvider.w3.eth.get_transaction(hash)
                 gas_price = tx["gasPrice"]
                 gas_cost = tx["gas"]*gas_price
                 total_gas_cost += float(gas_cost)
