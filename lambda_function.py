@@ -58,7 +58,7 @@ def handler(event, context):
     gardening_real_earnings = getRealEarnings(tablesManager, "gardening", logger)
 
     daily_mining_gas_cost = int(avg_gas_cost_results[0])*2*quest_per_day*3/10**18
-    daily_gardening_gas_cost = int(avg_gas_cost_results[1])*2*quest_per_day*3/10**18
+    daily_gardening_gas_cost = int(avg_gas_cost_results[1])*2*quest_per_day*3*3/10**18
 
     expected_avg_mining_profit = mining_earnings - daily_mining_gas_cost
     expected_avg_gardening_profit = gardening_earnings - daily_gardening_gas_cost
