@@ -1,76 +1,83 @@
+from functions.classes.APIService import APIService
+from functions.getGardeningEarnings import getGardeningEarnings
 from functions.getRealEarnings import getRealEarnings
-from functions.initTables import initTrackingTable, initGasTable, init_settings_table, init_account_table
 from functions.getMiningEarnings import getMiningEarnings
 from functions.getQuestingUptime import getQuestingUptime
-from functions.provider import get_provider
+from functions.classes.RPCProvider import RPCProvider, get_rpc_provider
+from functions.classes.TablesManager import TablesManager
+from functions.classes.Config import isProd
 import time
 
-w3 = get_provider("dfk")
 
 def handler(event, context):
+    chain = "dfk"
+    rpcProvider: RPCProvider = get_rpc_provider(chain)
+    apiService = APIService(chain)
+    tablesManager = TablesManager(isProd)
+
     quest_per_day = 1.84615
-    tracking_table = initTrackingTable()
-    gas_table = initGasTable()
-    settings_table = init_settings_table()
-    accounts_table = init_account_table()
-    gas_list = gas_table.scan()["Items"]
-    total_gas_cost = 0
-    total_gas_price = 0
-    c = 0
-    for gas_entry in gas_list:
-        hash = gas_entry["tx_hash"]
-        try:
-            if c < 50:   
-                tx = w3.eth.getTransaction(hash)
+    avg_gas_cost_results = []
+    avg_gas_price_results = []
+
+    for gas_table in [tablesManager.mining_gas, tablesManager.gardening_gas]:
+        total_gas_cost = 0
+        total_gas_price = 0
+        gas_list = gas_table.scan()["Items"]
+        entries = len(gas_list)
+        for gas_entry in gas_list:
+            hash = gas_entry["tx_hash"]
+            try:
+                tx = rpcProvider.w3.eth.getTransaction(hash)
                 gas_price = tx["gasPrice"]
                 gas_cost = tx["gas"]*gas_price
                 total_gas_cost += float(gas_cost)
                 total_gas_price += float(gas_price)
-                c+=1
-        except Exception as e:
-            print(e)
-        gas_table.delete_item(Key={"time_": gas_entry["time_"]})
 
-    if len(gas_list) == 0:
-        avg_gas_cost = 0
-        avg_gas_price = 0
-    elif 0<c:
-        avg_gas_cost = total_gas_cost/c
-        avg_gas_price = (total_gas_price/c)/10**9
-    else:
-        avg_gas_cost = 0
-        avg_gas_price = 0
+            except Exception as e:
+                print(e)
+
+        if len(gas_list) == 0:
+            avg_gas_cost_results.append(0)
+            avg_gas_price_results.append(0)
+        elif 0<entries:
+            avg_gas_cost_results.append(total_gas_cost/entries)
+            avg_gas_price_results.append((total_gas_price/entries)/10**9)
+        else:
+            avg_gas_cost_results.append(0)
+            avg_gas_price_results.append(0)
         
-    uptime = getQuestingUptime(accounts_table)
+    uptime = getQuestingUptime(tablesManager)
 
-    mining_earnings = int(getMiningEarnings(quest_per_day))/10**18
-    real_earnings = getRealEarnings()
-    daily_gas_cost = int(avg_gas_cost)*2*quest_per_day*3/10**18
-    expected_avg_profit = mining_earnings - daily_gas_cost
+    mining_earnings = int(getMiningEarnings(quest_per_day, apiService, rpcProvider))/10**18
+    gardening_earnings = int(getGardeningEarnings(quest_per_day, apiService, rpcProvider))/10**18
+
+    mining_real_earnings = getRealEarnings(tablesManager, "mining")
+    gardening_real_earnings = getRealEarnings(tablesManager, "gardening")
+
+    daily_mining_gas_cost = int(avg_gas_cost_results[0])*2*quest_per_day*3/10**18
+    daily_gardening_gas_cost = int(avg_gas_cost_results[1])*2*quest_per_day*3/10**18
+
+    expected_avg_mining_profit = mining_earnings - daily_mining_gas_cost
+    expected_avg_gardening_profit = gardening_earnings - daily_gardening_gas_cost
+
     item = {
         "time_": str(int(time.time())),
-        "daily_avg_earnings": str(mining_earnings),
-        "daily_real_avg_profit": str(real_earnings),
-        "daily_expected_avg_profit": str(expected_avg_profit),
-        "daily_avg_gas_cost": str(daily_gas_cost),
-        "avg_gas_price": str(avg_gas_price),
         "uptime": str(uptime),
+
+        "daily_avg_mining_earnings": str(mining_earnings),
+        "daily_avg_gardening_earnings": str(gardening_earnings),
+
+        "daily_real_avg_mining_profit": str(mining_real_earnings),
+        "daily_real_avg_gardening_profit": str(gardening_real_earnings),
+
+        "daily_expected_avg_mining_profit": str(expected_avg_mining_profit),
+        "daily_expected_avg_gardening_profit": str(expected_avg_gardening_profit),
+
+        "daily_avg_mining_gas_cost": str(daily_mining_gas_cost),
+        "daily_avg_gardening_gas_cost": str(daily_gardening_gas_cost),
+
+        "avg_mining_gas_price": str(avg_gas_price_results[0]),
+        "avg_gardening_gas_price": str(avg_gas_price_results[1])
     }
-    tracking_table.put_item(Item=item)
-    if expected_avg_profit < 0 or real_earnings < 0:
-        settings_table.update_item(
-            Key={"key_":"mining"},
-            UpdateExpression="set enabled=:enabled",
-            ExpressionAttributeValues={
-                ":enabled": False
-            }
-        )
-        settings_table.update_item(
-            Key={"key_":"buyer_settings"},
-            UpdateExpression="set enabled=:enabled",
-            ExpressionAttributeValues={
-                ":enabled": False
-            }
-        )
-        
+
     return item

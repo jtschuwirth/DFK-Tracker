@@ -1,34 +1,29 @@
 import json
 
-itemsJson = open("items_data/items_dfkchain.json")
-items = json.load(itemsJson)
+from functions.classes.APIService import APIService
+from functions.classes.RPCProvider import RPCProvider
+from functions.classes.Token import Token
 
-decimalsJson = open("items_data/decimals.json")
-decimals_data = json.load(decimalsJson)
-
-RouterAddress = "0x3C351E1afdd1b1BC44e931E12D4E05D6125eaeCa"
 RouterJson = open("abi/UniswapV2Router02.json")
 RouterABI = json.load(RouterJson)
 
 
 
-def getItemPriceJewel(item, w3):
-    RouterContract = w3.eth.contract(address=RouterAddress, abi=RouterABI)
+def getItemPriceJewel(item, apiService: APIService, rpcProvider: RPCProvider):
+    RouterContract = rpcProvider.w3.eth.contract(address=apiService.contracts["Router"]["address"], abi=RouterABI)
     try:
-        decimals = 0
-        if item in decimals_data:
-            decimals = decimals_data[item]
-        price = RouterContract.functions.getAmountsOut(1, [items[item], items["Jewel"]]).call()[1]
-        price = price*(10**decimals)
+        token: Token = apiService.tokens[item]
+        price = RouterContract.functions.getAmountsOut(1, [token.address, apiService["Jewel"].address]).call()[1]
+        price = price*(10**token.decimals)
     except Exception as e:
         print(e)
         price = 0
     return price
 
-def getCrystalPriceJewel(w3):
-    RouterContract = w3.eth.contract(address=RouterAddress, abi=RouterABI)
+def getCrystalPriceJewel(apiService: APIService, rpcProvider: RPCProvider):
+    RouterContract = rpcProvider.w3.eth.contract(address=apiService.contracts["Router"]["address"], abi=RouterABI)
     try:
-        price = RouterContract.functions.getAmountsOut(1*10**18, [items["Crystal"], items["Jewel"]]).call()[1]
+        price = RouterContract.functions.getAmountsOut(1*10**18, [apiService["Crystal"].address, apiService["Jewel"].address]).call()[1]
         price = price
     except Exception as e:
         print(e)

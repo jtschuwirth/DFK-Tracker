@@ -1,17 +1,14 @@
+from functions.classes.TablesManager import TablesManager
 from functions.getPrices import getItemPriceJewel
 
-from functions.provider import get_provider
-from functions.initTables import initPayoutsTable
-
-w3 = get_provider("dfk")
-
-def getRealEarnings():
-    payouts_table = initPayoutsTable()
-    payouts_list = payouts_table.scan()["Items"]
+def getRealEarnings(tablesManager: TablesManager, profession):
+    payouts_list = tablesManager.payouts.scan()["Items"]
     total_earnings = 0
     total_time_delta = 0
     no_stats = 0
     for payout in payouts_list:
+        if tablesManager.accounts.get_item(Key={"address_": payout["address_"]})["Item"]["profession"] != profession or (profession=="mining" and "profession" not in tablesManager.accounts.get_item(Key={"address_": payout["address_"]})["Item"]):
+            continue
         if int(payout["time_delta"]) == 0:
             no_stats += 1
             continue
