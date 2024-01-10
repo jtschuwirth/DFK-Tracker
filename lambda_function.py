@@ -83,4 +83,6 @@ def handler(event, context):
         "avg_gardening_gas_price": str(avg_gas_price_results[1])
     }
 
+    tablesManager.autoplayer_tracking.put_item(Item=item)
+
     return item
