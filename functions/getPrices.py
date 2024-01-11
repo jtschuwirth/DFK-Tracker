@@ -13,8 +13,8 @@ def getItemPriceJewel(item, apiService: APIService, rpcProvider: RPCProvider):
     RouterContract = rpcProvider.w3.eth.contract(address=apiService.contracts["Router"]["address"], abi=RouterABI)
     try:
         token: Token = apiService.tokens[item]
-        price = RouterContract.functions.getAmountsOut(1, [token.address, apiService.tokens["Jewel"].address]).call()[1]
-        price = price*(10**token.decimals)
+        price = RouterContract.functions.getAmountsOut(1*(10**token.decimals), [token.address, apiService.tokens["Jewel"].address]).call()[1]
+        price = price
     except Exception as e:
         print(e)
         price = 0

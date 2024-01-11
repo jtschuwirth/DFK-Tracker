@@ -51,8 +51,8 @@ def handler(event, context):
         
     uptime = getQuestingUptime(tablesManager)
 
-    mining_earnings = int(getMiningEarnings(quest_per_day, apiService, rpcProvider))/10**18
-    gardening_earnings = int(getGardeningEarnings(quest_per_day, apiService, rpcProvider))/10**18
+    mining_earnings = int(getMiningEarnings(quest_per_day, apiService, rpcProvider, logger))/10**18
+    gardening_earnings = int(getGardeningEarnings(quest_per_day, apiService, rpcProvider, logger))/10**18
 
     mining_real_earnings = getRealEarnings(tablesManager, "mining", logger)
     gardening_real_earnings = getRealEarnings(tablesManager, "gardening", logger)
