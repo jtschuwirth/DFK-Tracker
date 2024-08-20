@@ -2,7 +2,7 @@ from functions.classes.APIService import APIService
 from functions.getGardeningEarnings import getGardeningEarnings
 from functions.getRealEarnings import getRealEarnings
 from functions.getMiningEarnings import getMiningEarnings
-from functions.getQuestingUptime import getQuestingUptime
+from functions.getQuestingUptime import getQuestingUptime, getQuestingUptimeByProfession
 from functions.classes.RPCProvider import RPCProvider, get_rpc_provider
 from functions.classes.TablesManager import TablesManager
 from functions.classes.Config import isProd
@@ -50,6 +50,8 @@ def handler(event, context):
             avg_gas_price_results.append(0)
         
     uptime = getQuestingUptime(tablesManager)
+    uptime_mining = getQuestingUptimeByProfession(tablesManager, "mining")
+    uptime_gardening = getQuestingUptimeByProfession(tablesManager, "gardening")
 
     mining_earnings = int(getMiningEarnings(quest_per_day, apiService, rpcProvider, logger))/10**18
     gardening_earnings = int(getGardeningEarnings(quest_per_day, apiService, rpcProvider, logger))/10**18
@@ -66,6 +68,8 @@ def handler(event, context):
     item = {
         "time_": str(int(time.time())),
         "uptime": str(uptime),
+        "uptime_mining": str(uptime_mining),
+        "uptime_gardening": str(uptime_gardening),
 
         "daily_avg_mining_earnings": str(mining_earnings),
         "daily_avg_gardening_earnings": str(gardening_earnings),
