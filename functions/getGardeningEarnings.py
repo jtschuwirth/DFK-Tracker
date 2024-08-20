@@ -47,9 +47,9 @@ def getGardeningEarnings(quest_per_day, apiService: APIService, rpcProvider: RPC
     daily_egg = quest_per_day*egg_drop_rate
     daily_egg_value = daily_egg*egg_value
 
-    daily_jewel_reward = quest_per_day*0.005*10**18
+    daily_jewel_reward = (quest_per_day/2)*0.005*10**18
 
-    daily_crystal_reward = quest_per_day*0.005 + 0.099*quest_per_day*0.1 + 0.001*quest_per_day*1
+    daily_crystal_reward = (quest_per_day/2)*0.005 + 0.099*quest_per_day*0.1 + 0.001*quest_per_day*1
     daily_crystal_value = daily_crystal_reward*crystal_value
 
     print("daily_tears_value: ", daily_tears_value)
