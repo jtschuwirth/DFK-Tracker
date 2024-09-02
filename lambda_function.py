@@ -15,6 +15,42 @@ import time
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+def checkGasValues(gas_table, rpcProvider):
+    avg_gas_cost_results = []
+    avg_gas_price_results = []
+    total_gas_cost = 0
+    total_gas_price = 0
+    gas_list = gas_table.scan()["Items"]
+    entries = len(gas_list)
+    not_valids = 0
+    for gas_entry in gas_list:
+        if "tx_hash" not in gas_entry or gas_entry["tx_hash"] == "":
+            not_valids += 1
+            continue
+        if (int(gas_entry["time_"]) < (int(time.time()) - 7*24*60*60)):
+            not_valids += 1
+            continue
+        try:
+            tx = rpcProvider.w3.eth.get_transaction(hash)
+            gas_price = tx["gasPrice"]
+            gas_cost = tx["gas"]*gas_price
+            total_gas_cost += float(gas_cost)
+            total_gas_price += float(gas_price)
+
+        except Exception as e:
+            not_valids += 1
+            print(e)
+
+    if 0<entries:
+        avg_gas_cost_results.append(total_gas_cost/(entries-not_valids))
+        avg_gas_price_results.append((total_gas_price/(entries-not_valids))/10**9)
+    else:
+        avg_gas_cost_results.append(0)
+        avg_gas_price_results.append(0)
+
+    return avg_gas_cost_results, avg_gas_price_results
+
+
 def handler(event, context):
     chain = "dfk"
     rpcProvider: RPCProvider = get_rpc_provider(chain, [], logger)
@@ -22,38 +58,9 @@ def handler(event, context):
     tablesManager: TablesManager = get_tables_manager(isProd)
 
     quest_per_day = 1.84615
-    avg_gas_cost_results = []
-    avg_gas_price_results = []
-
     for gas_table in [tablesManager.mining_gas, tablesManager.gardening_gas]:
-        total_gas_cost = 0
-        total_gas_price = 0
-        gas_list = gas_table.scan()["Items"]
-        entries = len(gas_list)
-        for gas_entry in gas_list:
-            if "tx_hash" not in gas_entry or gas_entry["tx_hash"] == "":
-                continue
-            hash = gas_entry["tx_hash"]
-            try:
-                tx = rpcProvider.w3.eth.get_transaction(hash)
-                gas_price = tx["gasPrice"]
-                gas_cost = tx["gas"]*gas_price
-                total_gas_cost += float(gas_cost)
-                total_gas_price += float(gas_price)
+        avg_gas_cost_results, avg_gas_price_results = checkGasValues(gas_table, rpcProvider)
 
-            except Exception as e:
-                print(e)
-
-        if len(gas_list) == 0:
-            avg_gas_cost_results.append(0)
-            avg_gas_price_results.append(0)
-        elif 0<entries:
-            avg_gas_cost_results.append(total_gas_cost/entries)
-            avg_gas_price_results.append((total_gas_price/entries)/10**9)
-        else:
-            avg_gas_cost_results.append(0)
-            avg_gas_price_results.append(0)
-        
     uptime = getQuestingUptime(tablesManager)
     uptime_mining = getQuestingUptimeByProfession(tablesManager, "mining")
     uptime_gardening = getQuestingUptimeByProfession(tablesManager, "gardening")
