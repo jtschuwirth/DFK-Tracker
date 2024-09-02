@@ -31,6 +31,8 @@ def handler(event, context):
         gas_list = gas_table.scan()["Items"]
         entries = len(gas_list)
         for gas_entry in gas_list:
+            if "tx_hash" not in gas_entry or gas_entry["tx_hash"] == "":
+                continue
             hash = gas_entry["tx_hash"]
             try:
                 tx = rpcProvider.w3.eth.get_transaction(hash)
