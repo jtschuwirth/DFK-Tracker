@@ -1,19 +1,23 @@
-from functions.classes.TablesManager import TablesManager
+from dfk_commons.classes.TablesManager import TablesManager
+from boto3.dynamodb.conditions import Attr
+import time
 
-def getRealEarnings(tablesManager: TablesManager, profession, logger):
-    payouts_list = tablesManager.payouts.scan()["Items"]
+def getRealEarnings(tablesManager: TablesManager, profession):
+    payouts_list = tablesManager.payouts.scan(
+         FilterExpression=Attr('profession').eq(profession)
+    )["Items"]
     total_earnings = 0
     total_time_delta = 0
     not_valids = 0
-    for payout in payouts_list:
-        payout_profession = payout["profession"]
-        if payout_profession != profession:
-            not_valids += 1
-            continue
-            
+    for payout in payouts_list:        
         if int(payout["time_delta"]) == 0:
             not_valids += 1
             continue
+
+        if int(payout["time_"]) < (int(time.time()) - 7*24*60*60):
+            not_valids += 1
+            continue
+
 
         total_earnings += float(payout["amount_"])
         total_time_delta += int(payout["time_delta"])

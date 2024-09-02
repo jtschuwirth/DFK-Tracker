@@ -1,4 +1,4 @@
-from functions.classes.TablesManager import TablesManager
+from dfk_commons.classes.TablesManager import TablesManager
 
 
 def getQuestingUptime(tablesManager: TablesManager):

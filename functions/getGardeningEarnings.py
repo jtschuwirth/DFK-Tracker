@@ -1,6 +1,6 @@
-from functions.classes.APIService import APIService
-from functions.classes.RPCProvider import RPCProvider
 from functions.getPrices import getItemPriceJewel
+from dfk_commons.classes.APIService import APIService
+from dfk_commons.classes.RPCProvider import RPCProvider
 
 heroes_per_account = 18
 tear_drop_rate = 0.1125 #per try

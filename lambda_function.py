@@ -1,11 +1,14 @@
-from functions.classes.APIService import APIService
+from dfk_commons.classes.APIService import APIService
 from functions.getGardeningEarnings import getGardeningEarnings
 from functions.getRealEarnings import getRealEarnings
 from functions.getMiningEarnings import getMiningEarnings
 from functions.getQuestingUptime import getQuestingUptime, getQuestingUptimeByProfession
-from functions.classes.RPCProvider import RPCProvider, get_rpc_provider
-from functions.classes.TablesManager import TablesManager
-from functions.classes.Config import isProd
+from dfk_commons.classes.RPCProvider import RPCProvider
+from dfk_commons.classes.TablesManager import TablesManager
+from dfk_commons.functions.get_rpc_provider import get_rpc_provider
+from dfk_commons.functions.get_tables_manager import get_tables_manager
+from dfk_commons.functions.get_api_service import get_api_service
+from functions.configs import isProd
 import logging
 import time
 
@@ -15,8 +18,8 @@ logger.setLevel(logging.INFO)
 def handler(event, context):
     chain = "dfk"
     rpcProvider: RPCProvider = get_rpc_provider(chain, [], logger)
-    apiService = APIService(chain)
-    tablesManager = TablesManager(isProd)
+    apiService: APIService = get_api_service(chain)
+    tablesManager: TablesManager = get_tables_manager(isProd)
 
     quest_per_day = 1.84615
     avg_gas_cost_results = []
@@ -56,8 +59,8 @@ def handler(event, context):
     mining_earnings = int(getMiningEarnings(quest_per_day, apiService, rpcProvider, logger))/10**18
     gardening_earnings = int(getGardeningEarnings(quest_per_day, apiService, rpcProvider, logger))/10**18
 
-    mining_real_earnings = getRealEarnings(tablesManager, "mining", logger)
-    gardening_real_earnings = getRealEarnings(tablesManager, "gardening", logger)
+    mining_real_earnings = getRealEarnings(tablesManager, "mining")
+    gardening_real_earnings = getRealEarnings(tablesManager, "gardening")
 
     daily_mining_gas_cost = int(avg_gas_cost_results[0])*2*quest_per_day*3/10**18
     daily_gardening_gas_cost = int(avg_gas_cost_results[1])*2*quest_per_day*3*3/10**18

@@ -1,11 +1,7 @@
-import json
-
-from functions.classes.APIService import APIService
-from functions.classes.RPCProvider import RPCProvider
-from functions.classes.Token import Token
-
-RouterJson = open("abi/UniswapV2Router02.json")
-RouterABI = json.load(RouterJson)
+from dfk_commons.classes.APIService import APIService
+from dfk_commons.classes.RPCProvider import RPCProvider
+from dfk_commons.classes.Token import Token
+from dfk_commons.abi_getters import RouterABI
 
 
 
