@@ -30,7 +30,9 @@ def checkGasValues(gas_table, rpcProvider):
         if (int(gas_entry["time_"]) < (int(time.time()) - 7*24*60*60)):
             not_valids += 1
             continue
+
         try:
+            hash = gas_entry["tx_hash"]
             tx = rpcProvider.w3.eth.get_transaction(hash)
             gas_price = tx["gasPrice"]
             gas_cost = tx["gas"]*gas_price
@@ -41,7 +43,7 @@ def checkGasValues(gas_table, rpcProvider):
             not_valids += 1
             print(e)
 
-    if 0<entries:
+    if 0<(entries-not_valids):
         avg_gas_cost_results.append(total_gas_cost/(entries-not_valids))
         avg_gas_price_results.append((total_gas_price/(entries-not_valids))/10**9)
     else:
