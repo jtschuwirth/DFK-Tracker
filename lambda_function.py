@@ -60,7 +60,7 @@ def handler(event, context):
     tablesManager: TablesManager = get_tables_manager(isProd)
     dfkLogger: DFKLogger = get_dfk_logger(logger)
 
-    quest_per_day = 1.84615
+    quest_per_day = ((24*60)/270)/3
     dfkLogger.info("Starting autoplayer tracking")
     dfkLogger.info("Getting gas values")
     avg_mining_gas_cost_results, avg_mining_gas_price_results = checkGasValues(tablesManager.mining_gas, rpcProvider)
