@@ -3,7 +3,8 @@ version: 0.2
 env:
   variables:
     PROD: $PROD
-    DFK_SECRET_NANE: $DFK_SECRET_NANE
+    DFK_SECRET_NAME: $DFK_SECRET_NAME
+    API_URL: $API_URL
 
 phases:
   pre_build:

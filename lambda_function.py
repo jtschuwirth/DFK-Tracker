@@ -10,11 +10,12 @@ from dfk_commons.functions.get_rpc_provider import get_rpc_provider
 from dfk_commons.functions.get_tables_manager import get_tables_manager
 from dfk_commons.functions.get_api_service import get_api_service
 from dfk_commons.functions.get_dfk_logger import get_dfk_logger
-from functions.configs import isProd
+from functions.configs import isProd, apiUrl
 import logging
 import time
 
-logger = logging.getLogger()
+logging.basicConfig()
+logger = logging.getLogger('stats-tracking')
 logger.setLevel(logging.INFO)
 
 def checkGasValues(gas_table, rpcProvider):
@@ -56,7 +57,7 @@ def checkGasValues(gas_table, rpcProvider):
 def handler(event, context):
     chain = "dfk"
     rpcProvider: RPCProvider = get_rpc_provider(chain, [], logger)
-    apiService: APIService = get_api_service(chain)
+    apiService: APIService = get_api_service(apiUrl, chain)
     tablesManager: TablesManager = get_tables_manager(isProd)
     dfkLogger: DFKLogger = get_dfk_logger(logger)
 
@@ -109,6 +110,7 @@ def handler(event, context):
         "avg_gardening_gas_price": str(avg_gardening_gas_price_results)
     }
 
+    dfkLogger.info(item)
     tablesManager.autoplayer_tracking.put_item(Item=item)
 
     return item

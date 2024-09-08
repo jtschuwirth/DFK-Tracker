@@ -15,6 +15,8 @@ def getQuestingUptime(tablesManager: TablesManager):
         }
     )["Items"]
    
+    if len(allAccounts) == 0:
+       return 0
     return len(questingAccounts)/len(allAccounts)
 
 
@@ -35,4 +37,6 @@ def getQuestingUptimeByProfession(tablesManager: TablesManager, profession: str)
         }
     )["Items"]
    
+    if len(allAccounts) == 0:
+       return 0
     return len(questingAccounts)/len(allAccounts)

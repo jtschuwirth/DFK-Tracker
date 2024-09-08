@@ -32,17 +32,5 @@ def getMiningEarnings(quest_per_day, apiService: APIService, rpcProvider: RPCPro
     daily_egg = quest_per_day*egg_drop_rate
     daily_egg_value = daily_egg*egg_value
 
-    print("daily_gold_value: ", daily_gold_value)
-    print("daily_tears_value: ", daily_tears_value)
-    print("daily_shvas_value: ", daily_shvas_value)
-    print("daily_moksha_value: ", daily_moksha_value)
-    print("daily_egg_value: ", daily_egg_value)
-
-    logger.info("daily_gold_value: " + str(daily_gold_value))
-    logger.info("daily_tears_value: " + str(daily_tears_value))
-    logger.info("daily_shvas_value: " + str(daily_shvas_value))
-    logger.info("daily_moksha_value: " + str(daily_moksha_value))
-    logger.info("daily_egg_value: " + str(daily_egg_value))
-
     daily_income = daily_gold_value + daily_tears_value + daily_moksha_value + daily_shvas_value + daily_egg_value
     return daily_income*miners_per_account

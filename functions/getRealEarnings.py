@@ -18,7 +18,6 @@ def getRealEarnings(tablesManager: TablesManager, profession):
             not_valids += 1
             continue
 
-
         total_earnings += float(payout["amount_"])
         total_time_delta += int(payout["time_delta"])
     avg_earnings = total_earnings/(len(payouts_list)-not_valids)
