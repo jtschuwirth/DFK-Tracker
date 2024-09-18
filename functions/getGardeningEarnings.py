@@ -9,7 +9,7 @@ moksha_drop_rate = 0.00045 #per try
 blue_stem_drop_rate = 0.09 #per try
 spiderfruit_drop_rate = 0.06 #per try
 milkweed_drop_rate = 0.04 #per try
-egg_drop_rate = 0.0004 #per quest
+egg_drop_rate = 0.005*2/100 #per quest
 loot_slots = 5
 
 def getGardeningEarnings(quest_per_day, apiService: APIService, rpcProvider: RPCProvider, logger):
@@ -49,8 +49,8 @@ def getGardeningEarnings(quest_per_day, apiService: APIService, rpcProvider: RPC
 
     daily_jewel_reward = (quest_per_day/2)*0.005*10**18
 
-    daily_crystal_reward = (quest_per_day/2)*0.005 + 0.099*quest_per_day*0.1 + 0.001*quest_per_day*1
+    daily_crystal_reward = (quest_per_day/2)*0.005 + 0.099*(quest_per_day/2)*0.1 + 0.001*(quest_per_day/2)*1
     daily_crystal_value = daily_crystal_reward*crystal_value
-    
+
     daily_income = daily_jewel_reward + daily_crystal_value + daily_tears_value + daily_moksha_value + daily_shvas_value + daily_egg_value + daily_blue_stem_value + daily_spiderfruit_value + daily_milkweed_value
     return daily_income*heroes_per_account

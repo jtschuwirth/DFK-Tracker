@@ -7,7 +7,7 @@ avg_gold= 65 #per quest
 tear_drop_rate = 0.1125 #per try
 shvas_drop_rate = 0.015 #per try
 moksha_drop_rate = 0.00045 #per try
-egg_drop_rate = 0.0004 #per quest
+egg_drop_rate = 0.005*2/100 #per quest
 loot_slots = 5
 
 def getMiningEarnings(quest_per_day, apiService: APIService, rpcProvider: RPCProvider, logger):
