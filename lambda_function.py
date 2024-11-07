@@ -10,7 +10,7 @@ from dfk_commons.functions.get_rpc_provider import get_rpc_provider
 from dfk_commons.functions.get_tables_manager import get_tables_manager
 from dfk_commons.functions.get_api_service import get_api_service
 from dfk_commons.functions.get_dfk_logger import get_dfk_logger
-from functions.configs import isProd, apiUrl
+from functions.configs import isProd, apiUrl, apiKey
 import logging
 import time
 
@@ -56,19 +56,27 @@ def checkGasValues(gas_table, rpcProvider):
 
 def handler(event, context):
     chain = "dfk"
-    rpcProvider: RPCProvider = get_rpc_provider(chain, [], logger)
-    apiService: APIService = get_api_service(apiUrl, chain)
+    rpcProvider: RPCProvider = get_rpc_provider(chain, logger)
+    apiService: APIService = get_api_service(apiUrl, apiKey,  chain)
     tablesManager: TablesManager = get_tables_manager(isProd)
     dfkLogger: DFKLogger = get_dfk_logger(logger)
 
     quest_per_day = ((24*60)/270)/3
     dfkLogger.info("Starting autoplayer tracking")
     dfkLogger.info("Getting gas values")
-    avg_mining_gas_cost_results, avg_mining_gas_price_results = checkGasValues(tablesManager.mining_gas, rpcProvider)
-    daily_mining_gas_cost = int(avg_mining_gas_cost_results)*2*quest_per_day*3/10**18
-    
-    avg_gardening_gas_cost_results, avg_gardening_gas_price_results = checkGasValues(tablesManager.gardening_gas, rpcProvider)
-    daily_gardening_gas_cost = int(avg_gardening_gas_cost_results)*2*quest_per_day*3*3/10**18
+    if isProd:
+        avg_mining_gas_cost_results, avg_mining_gas_price_results = checkGasValues(tablesManager.mining_gas, rpcProvider)
+        daily_mining_gas_cost = int(avg_mining_gas_cost_results)*2*quest_per_day*3/10**18
+        
+        avg_gardening_gas_cost_results, avg_gardening_gas_price_results = checkGasValues(tablesManager.gardening_gas, rpcProvider)
+        daily_gardening_gas_cost = int(avg_gardening_gas_cost_results)*2*quest_per_day*3*3/10**18
+    else:
+        daily_mining_gas_cost=0
+        avg_mining_gas_cost_results=0
+        avg_mining_gas_price_results=0
+        daily_gardening_gas_cost=0
+        avg_gardening_gas_cost_results=0
+        avg_gardening_gas_price_results=0
 
 
     dfkLogger.info("Getting uptime values")
@@ -111,6 +119,7 @@ def handler(event, context):
     }
 
     dfkLogger.info(item)
-    tablesManager.autoplayer_tracking.put_item(Item=item)
+    if isProd:
+        tablesManager.autoplayer_tracking.put_item(Item=item)
 
     return item

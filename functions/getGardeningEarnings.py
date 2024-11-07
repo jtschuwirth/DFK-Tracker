@@ -18,11 +18,9 @@ def getGardeningEarnings(quest_per_day, apiService: APIService, rpcProvider: RPC
     shvas_value = getItemPriceJewel("Shvas Rune", apiService, rpcProvider)
     moksha_value = getItemPriceJewel("Moksha Rune", apiService, rpcProvider)
 
-    gold_value = getItemPriceJewel("DFKGold", apiService, rpcProvider)
-
-    blue_stem_value = gold_value*5
-    spiderfruit_value = gold_value*10
-    milkweed_value = gold_value*12.5
+    blue_stem_value = getItemPriceJewel("Blue Stem", apiService, rpcProvider)
+    spiderfruit_value = getItemPriceJewel("Spiderfruit", apiService, rpcProvider)
+    milkweed_value = getItemPriceJewel("Milkweed", apiService, rpcProvider)
 
     egg_value = getItemPriceJewel("Green Pet Egg", apiService, rpcProvider)
 
