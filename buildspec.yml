@@ -5,6 +5,7 @@ env:
     PROD: $PROD
     DFK_SECRET_NAME: $DFK_SECRET_NAME
     API_URL: $API_URL
+    API_KEY: $API_KEY
 
 phases:
   pre_build:
