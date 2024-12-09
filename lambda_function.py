@@ -50,6 +50,8 @@ def handler(event, context):
     if isProd:
         avg_cost_results, avg_gas_price_results = checkGasValues(gas_table, rpcProvider)
         daily_gas_cost = int(avg_cost_results)*2*quest_per_day*3/10**18
+        if profession == "gardening":
+            daily_gas_cost = daily_gas_cost*3
         
     else:
         daily_gas_cost=0
